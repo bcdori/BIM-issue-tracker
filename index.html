@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<script src="https://cdn.jsdelivr.net/npm/vue@3.5.13/dist/vue.global.min.js"></script>
+
+<body>
+    <div id="app">
+        <h1>BIM Issue Tracker</h1>
+        <ul>
+            <!-- reactive list rendering using vue.js -->
+             <li v-for="issue in issues">{{ issue.title }} - {{ issue.projectName }}</li>
+        </ul>
+        <button @click="loadIssues">Refresh Issues</button>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return { issues: [] }
+            },
+            methods: {
+                async loadIssues() {
+                    const response = await fetch('/issues');
+                    this.issues = await response.json(); // automatic DOM update
+                },
+            },
+            mounted() {
+                const ws = new WebSocket("ws://localhost:3000");
+                ws.onopen = () => console.log("Connected to real-time issue stream.");
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'NEW_ISSUE') {
+                        this.issues.push(data.issue); // reactive update
+                    }
+                };
+                ws.onclose = () => console.log("Disconnected from stream.");
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
