@@ -46,7 +46,7 @@ POST /issues
 1. install dependencies:
    `npm install express ws`
 2. start the server:
-   node server.js`
+   `node server.js`
 3. open the application in the browser (index.html)
 
 # Limitations and potential for improvemnt
